@@ -1,0 +1,163 @@
+{
+	"variables": [],
+	"info": {
+		"name": "upgrade",
+		"_postman_id": "1bf485c4-c729-4e01-7e33-aa6d086002d1",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "http://localhost:8080/reserve",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/reserve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"reserve"
+					],
+					"query": [
+						{
+							"key": "request",
+							"value": "{\n\t\"firstName\": \"Michael\",\n\t\"lastName\": \"Jordan\",\n\t\"email\": \"michael@jordan.com\",\n\t\"checkInDate\": \"1/2/2020\",\n\t\"checkOutDate\": \"1/3/2020\"\n}",
+							"equals": true,
+							"description": "",
+							"disabled": true
+						}
+					],
+					"variable": []
+				},
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Michael\",\n\t\"lastName\": \"Jordan\",\n\t\"email\": \"michael@jordan.com\",\n\t\"checkInDate\": \"2020-07-01\",\n\t\"checkOutDate\": \"2020-07-20\"\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/cancel",
+			"request": {
+				"url": "http://localhost:8080/cancel",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"bookingId\": \"xxxxx\"\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/modify",
+			"request": {
+				"url": "http://localhost:8080/modify",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"firstName\": \"Michael\",\n\t\"lastName\": \"Jordan\",\n\t\"email\": \"michael@jordan.com\",\n\t\"checkInDate\": \"2020-07-06\",\n\t\"checkOutDate\": \"2020-07-09\",\n\t\"bookingId\": \"BSFJH\"\n}\n"
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/reservations",
+			"request": {
+				"url": "http://localhost:8080/reservations",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/schedules",
+			"request": {
+				"url": "http://localhost:8080/schedules",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/reservation?bookingId=BSFJH",
+			"request": {
+				"url": {
+					"raw": "http://localhost:8080/reservation?bookingId=BSFJH",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"reservation"
+					],
+					"query": [
+						{
+							"key": "bookingId",
+							"value": "BSFJH",
+							"equals": true,
+							"description": ""
+						}
+					],
+					"variable": []
+				},
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:8080/available",
+			"request": {
+				"url": "http://localhost:8080/available",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n   \"startDate\": \"2020-07-01\",\n   \"endDate\": \"2020-09-31\"\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
