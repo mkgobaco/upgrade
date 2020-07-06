@@ -14,6 +14,9 @@ Highlights:
     pessimistic locking is working.
 5.  Sample REST calls in upgrade.postman_collection.json can be imported to PostMan
 6.  The response objects will have a non-empty errors json array if there are any errors.
+7.  A file-based H2 database is used.  To get to it while the rest service is running, 
+go to http://localhost:8080/h2-console, username: sa, blank password.
+8. For testing purposes, two months worth of sample data are created from the date the microservice is started.
 
 Sample REST calls Quick Start:
 1.  Making a reservation

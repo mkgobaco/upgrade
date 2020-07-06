@@ -41,6 +41,8 @@ public class CampsiteService {
 
     private Integer maximumDays;
 
+    private String modifiedBy;
+
     @Autowired
     public CampsiteService(IdService idService,
                            ReservationsRepository reservationsRepository,
@@ -48,7 +50,8 @@ public class CampsiteService {
                            @Value("${upgrade.campsite.bookingIdLength}") String bookingIdLength,
                            @Value("${upgrade.campsite.minimumDaysAdvance}") Integer minimumDaysAdvance,
                            @Value("${upgrade.campsite.maximumDaysAdvance}") Integer maximumDaysAdvance,
-                           @Value("${upgrade.campsite.maximumDays}") Integer maximumDays) {
+                           @Value("${upgrade.campsite.maximumDays}") Integer maximumDays,
+                           @Value("${upgrade.campsite.modifiedBy}") String modifiedBy) {
         this.idService = idService;
         this.reservationsRepository = reservationsRepository;
         this.scheduleRepository = scheduleRepository;
@@ -56,6 +59,7 @@ public class CampsiteService {
         this.minimumDaysAdvance = minimumDaysAdvance;
         this.maximumDaysAdvance = maximumDaysAdvance;
         this.maximumDays = maximumDays;
+        this.modifiedBy = modifiedBy;
     }
 
     @Transactional
@@ -95,11 +99,17 @@ public class CampsiteService {
     }
 
     public Boolean validateMaxDays(LocalDate startDate, LocalDate endDate, Integer maxDays) {
+        if (endDate == null) {
+            return false;
+        }
         return !endDate
                 .isAfter(startDate.plusDays(maxDays));
     }
 
     public Boolean validateMinDays(LocalDate startDate, LocalDate endDate, Integer minDays) {
+        if (endDate == null) {
+            return false;
+        }
         return endDate
                 .isAfter(startDate.plusDays(minDays) )
                 || endDate.isEqual(startDate.plusDays(minDays));
@@ -120,19 +130,36 @@ public class CampsiteService {
     public List<String> validateReservationRequest(ReservationRequest reservationRequest) {
         List<String> errors = new ArrayList<>();
 
+        String firstName = reservationRequest.getFirstName();
+        String lastName = reservationRequest.getLastName();
+        String email = reservationRequest.getEmail();
         LocalDate checkInDate = reservationRequest.getCheckInDate();
         LocalDate checkOutDate = reservationRequest.getCheckOutDate();
-        if (!validateMaxDays(checkInDate, checkOutDate, maximumDays)) {
-            errors.add("Cannot reserve more than 3 days");
+
+        if (firstName == null || firstName.isEmpty()) {
+            errors.add("First Name is required.");
         }
-        if (!validateMaxAdvance(checkInDate, maximumDaysAdvance)) {
-            errors.add("Cannot reserve more than 30 days in advance");
+        if (lastName == null || lastName.isEmpty()) {
+            errors.add("Last Name is required.");
         }
-        if (!validateMinAdvance(checkInDate, minimumDaysAdvance)) {
-            errors.add("Need to reserve at least 1 day in advance");
+        if (email == null || email.isEmpty()) {
+            errors.add("Email is required.");
         }
-        if (!validateMinDays(checkInDate, checkOutDate, 1)) {
-            errors.add("Need to reserve at least 1 day");
+        if (checkInDate == null || checkOutDate == null) {
+            errors.add("Check In Date and Check Out Date are required.");
+        } else {
+            if (!validateMaxDays(checkInDate, checkOutDate, maximumDays)) {
+                errors.add("Cannot reserve more than 3 days.");
+            }
+            if (!validateMaxAdvance(checkInDate, maximumDaysAdvance)) {
+                errors.add("Cannot reserve more than 30 days in advance.");
+            }
+            if (!validateMinAdvance(checkInDate, minimumDaysAdvance)) {
+                errors.add("Need to reserve at least 1 day in advance.");
+            }
+            if (!validateMinDays(checkInDate, checkOutDate, 1)) {
+                errors.add("Need to reserve at least 1 day.");
+            }
         }
         return errors;
     }
@@ -196,6 +223,11 @@ public class CampsiteService {
         }
 
         CancellationResponse cancellationResponse = CancellationResponse.builder()
+                .firstName(reservation.get().getFirstName())
+                .lastName(reservation.get().getLastName())
+                .email(reservation.get().getEmail())
+                .checkInDate(reservation.get().getCheckInDate())
+                .checkOutDate(reservation.get().getCheckOutDate())
                 .cancellationRequest(cancellationRequest)
                 .cancelledDates(cancelledDates)
                 .build();
@@ -209,13 +241,25 @@ public class CampsiteService {
         List<String> errors = new ArrayList<>();
 
         String bookingId = modificationRequest.getBookingId();
+        String firstName = modificationRequest.getFirstName();
+        String lastName = modificationRequest.getLastName();
+        String email = modificationRequest.getEmail();
+        LocalDate checkInDate = modificationRequest.getCheckInDate();
+        LocalDate checkOutDate = modificationRequest.getCheckOutDate();
+
 
         Optional<Reservation> reservation = reservationsRepository.findByBookingId(bookingId);
 
-        if (!errors.isEmpty()) {
+        if (
+                reservation.get().getFirstName().equals(firstName)
+                && reservation.get().getLastName().equals(lastName)
+                && reservation.get().getEmail().equals(email)
+                && reservation.get().getCheckInDate().equals(checkInDate)
+                && reservation.get().getCheckOutDate().equals(checkOutDate)
+        ) {
             throw new ModificationException(
                     modificationRequest,
-                    Arrays.asList("Unable to modify non-existing BookingID=" + bookingId)
+                    Arrays.asList("Modification request is the same as existing bookingId=" + bookingId)
             );
         }
 
@@ -226,12 +270,28 @@ public class CampsiteService {
             throw new ModificationException(modificationRequest, ex.getErrors());
         }
 
+        if (firstName == null || firstName.isEmpty()) {
+            firstName = cancellationResponse.getFirstName();
+        }
+
+        if (lastName == null || lastName.isEmpty()) {
+            lastName = cancellationResponse.getLastName();
+        }
+
+        if (checkInDate == null) {
+            checkInDate = cancellationResponse.getCheckInDate();
+        }
+
+        if (checkOutDate == null) {
+            checkOutDate = cancellationResponse.getCheckOutDate();
+        }
+
         ReservationRequest reservationRequest = ReservationRequest.builder()
-                .firstName(modificationRequest.getFirstName())
-                .lastName(modificationRequest.getLastName())
-                .email(modificationRequest.getEmail())
-                .checkInDate(modificationRequest.getCheckInDate())
-                .checkOutDate(modificationRequest.getCheckOutDate())
+                .firstName(firstName)
+                .lastName(lastName)
+                .email(email)
+                .checkInDate(checkInDate)
+                .checkOutDate(checkOutDate)
                 .build();
 
         ReservationResponse reservationResponse = null;
@@ -271,6 +331,7 @@ public class CampsiteService {
                 scheduleDate = Optional.of(Schedule.builder().scheduleDate(ii).build());
                 scheduleDate.get().setStatus(ScheduleStatus.AVAILABLE);
                 scheduleDate.get().setBookingId(null);
+                scheduleDate.get().setModifiedBy(modifiedBy);
                 scheduleRepository.save(scheduleDate.get());
             }
         }
@@ -354,6 +415,7 @@ public class CampsiteService {
                 .checkInDate(checkInDate)
                 .checkOutDate(checkOutDate)
                 .status(ReservationStatus.RESERVED)
+                .modifiedBy(modifiedBy)
                 .build();
 
         return CreateReservationDTO.builder().reservation(reservation).errors(errors).build();
@@ -373,6 +435,7 @@ public class CampsiteService {
                     if (schedule.get().getStatus().equals(ScheduleStatus.AVAILABLE)) {
                         schedule.get().setStatus(ScheduleStatus.NOT_AVAILABLE);
                         schedule.get().setBookingId(bookingId);
+                        schedule.get().setModifiedBy(modifiedBy);
                         schedules.add(schedule.get());
                     } else {
                         errors.add( ii + " Date not available.  " + "Existing Booking ID: " + schedule.get().getBookingId());

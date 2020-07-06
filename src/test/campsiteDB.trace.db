@@ -603,3 +603,28 @@ org.h2.jdbc.JdbcSQLTimeoutException: Timeout trying to lock table {0}; SQL state
 select schedule0_.id as id1_2_, schedule0_.booking_id as booking_2_2_, schedule0_.created_date as created_3_2_, schedule0_.modified_by as modified4_2_, schedule0_.modified_date as modified5_2_, schedule0_.schedule_date as schedule6_2_, schedule0_.status as status7_2_, schedule0_.version as version8_2_ from schedule schedule0_ where schedule0_.schedule_date=? for update [50200-200]
 2020-07-01 15:04:09 jdbc[4]: exception
 org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-200]
+2020-07-02 12:17:41 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Timeout trying to lock table {0}; SQL statement:
+select schedule0_.id as id1_2_, schedule0_.booking_id as booking_2_2_, schedule0_.created_date as created_3_2_, schedule0_.modified_by as modified4_2_, schedule0_.modified_date as modified5_2_, schedule0_.schedule_date as schedule6_2_, schedule0_.status as status7_2_, schedule0_.version as version8_2_ from schedule schedule0_ where schedule0_.schedule_date=? for update [50200-200]
+2020-07-02 12:17:41 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-200]
+2020-07-06 09:40:20 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Timeout trying to lock table {0}; SQL statement:
+select schedule0_.id as id1_2_, schedule0_.booking_id as booking_2_2_, schedule0_.created_date as created_3_2_, schedule0_.modified_by as modified4_2_, schedule0_.modified_date as modified5_2_, schedule0_.schedule_date as schedule6_2_, schedule0_.status as status7_2_, schedule0_.version as version8_2_ from schedule schedule0_ where schedule0_.schedule_date=? for update [50200-200]
+2020-07-06 09:40:20 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-200]
+2020-07-06 09:43:54 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Timeout trying to lock table {0}; SQL statement:
+select schedule0_.id as id1_2_, schedule0_.booking_id as booking_2_2_, schedule0_.created_date as created_3_2_, schedule0_.modified_by as modified4_2_, schedule0_.modified_date as modified5_2_, schedule0_.schedule_date as schedule6_2_, schedule0_.status as status7_2_, schedule0_.version as version8_2_ from schedule schedule0_ where schedule0_.schedule_date=? for update [50200-200]
+2020-07-06 09:43:54 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-200]
+2020-07-06 10:01:03 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Timeout trying to lock table {0}; SQL statement:
+select schedule0_.id as id1_2_, schedule0_.booking_id as booking_2_2_, schedule0_.created_date as created_3_2_, schedule0_.modified_by as modified4_2_, schedule0_.modified_date as modified5_2_, schedule0_.schedule_date as schedule6_2_, schedule0_.status as status7_2_, schedule0_.version as version8_2_ from schedule schedule0_ where schedule0_.schedule_date=? for update [50200-200]
+2020-07-06 10:01:03 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-200]
+2020-07-06 10:02:34 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLTimeoutException: Timeout trying to lock table {0}; SQL statement:
+select schedule0_.id as id1_2_, schedule0_.booking_id as booking_2_2_, schedule0_.created_date as created_3_2_, schedule0_.modified_by as modified4_2_, schedule0_.modified_date as modified5_2_, schedule0_.schedule_date as schedule6_2_, schedule0_.status as status7_2_, schedule0_.version as version8_2_ from schedule schedule0_ where schedule0_.schedule_date=? for update [50200-200]
+2020-07-06 10:02:34 jdbc[4]: exception
+org.h2.jdbc.JdbcSQLNonTransientException: The object is already closed [90007-200]

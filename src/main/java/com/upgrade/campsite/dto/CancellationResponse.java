@@ -12,5 +12,10 @@ import java.util.List;
 public class CancellationResponse {
     private CancellationRequest cancellationRequest;
     List<LocalDate> cancelledDates;
+    String firstName;
+    String lastName;
+    String email;
+    LocalDate checkInDate;
+    LocalDate checkOutDate;
     private List<String> errors;
 }

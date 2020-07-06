@@ -1,18 +1,15 @@
 package com.upgrade.campsite.services;
 
-import com.upgrade.campsite.dto.InitializeRequest;
-import com.upgrade.campsite.dto.ReservationRequest;
-import com.upgrade.campsite.dto.ReservationResponse;
+import com.upgrade.campsite.dto.*;
 import com.upgrade.campsite.entities.Reservation;
 import com.upgrade.campsite.entities.ReservationsRepository;
 import com.upgrade.campsite.entities.Schedule;
 import com.upgrade.campsite.entities.ScheduleRepository;
+import com.upgrade.campsite.enums.ReservationStatus;
 import com.upgrade.campsite.exceptions.CampsiteException;
 import com.upgrade.campsite.exceptions.ReservationException;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -24,7 +21,10 @@ import org.springframework.transaction.TransactionSystemException;
 import javax.persistence.EntityManager;
 import javax.persistence.PessimisticLockException;
 import javax.transaction.Transactional;
+import java.time.Duration;
 import java.time.LocalDate;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -49,12 +49,18 @@ class CampsiteServiceTest {
     @Autowired
     private EntityManager entityManager;
 
+    @Autowired
+    private IdService idService;
+
     LocalDate availableStartDate = LocalDate.now();
-    LocalDate availableEndDate = availableStartDate.plusMonths(2L);
+    LocalDate availableEndDate = availableStartDate.plusWeeks(8L);
+    Long numOfDays = ChronoUnit.DAYS.between(availableStartDate, availableEndDate) + 1;
+
 
     @BeforeEach
-    void beforeAll() {
-
+    void beforeEach() {
+        scheduleRepository.deleteAll();
+        reservationsRepository.deleteAll();
         InitializeRequest initializeRequest = InitializeRequest.builder()
                 .availableStartDate(availableStartDate)
                 .availableEndDate(availableEndDate)
@@ -67,6 +73,7 @@ class CampsiteServiceTest {
     void initialize() {
         Optional<Schedule> schedule = scheduleRepository.findByScheduleDate(availableEndDate);
         assertEquals(true, schedule.isPresent());
+        assertEquals(numOfDays, scheduleRepository.findAll().size());
     }
 
     @Test
@@ -209,4 +216,96 @@ class CampsiteServiceTest {
         assertTrue(campsiteService.validateMinAdvance(LocalDate.now().plusDays(1), 1));
         assertFalse(campsiteService.validateMinAdvance(LocalDate.now().plusDays(0), 1));
     }
+
+    /**
+     * 0 = "First Name is required."
+     * 1 = "Last Name is required."
+     * 2 = "Email is required."
+     * 3 = "Check In Date and Check Out Date are required."
+     */
+    @Test
+    void validateReservationRequest() {
+        List<String> errors = campsiteService.validateReservationRequest(ReservationRequest.builder().build());
+        assertEquals("First Name is required.", errors.get(0));
+        assertEquals("Last Name is required.", errors.get(1));
+        assertEquals("Email is required.", errors.get(2));
+        assertEquals("Check In Date and Check Out Date are required.", errors.get(3));
+    }
+
+    @Test
+    @Transactional
+    void reservation() {
+        String bookingId = idService.generateId(5);
+        reservationsRepository.save(Reservation.builder()
+                .bookingId(bookingId)
+                .status(ReservationStatus.RESERVED)
+                .email("f@l.com")
+                .firstName("f")
+                .lastName("l")
+                .build());
+        Optional<Reservation> reservation = campsiteService.reservation(bookingId);
+        assertEquals(reservation.get().getBookingId(), bookingId);
+        assertEquals(reservation.get().getFirstName(), "f");
+        assertEquals(reservation.get().getLastName(), "l");
+        assertEquals(reservation.get().getEmail(), "f@l.com");
+        assertEquals(reservation.get().getStatus(), ReservationStatus.RESERVED);
+
+        reservationsRepository.delete(reservation.get());
+        Optional<Reservation> reservation1 = reservationsRepository.findByBookingId(bookingId);
+        assertEquals(Optional.empty(), reservation1);
+    }
+
+    @Test
+    void reservations() {
+    }
+
+    @Test
+    void schedules() {
+    }
+
+    @Test
+    void available() {
+    }
+
+    @Test
+    void reserve() {
+    }
+
+    @Test
+    void cancel() {
+    }
+
+    @Test
+    @Transactional
+    void modify() {
+        String bookingId = idService.generateId(5);
+        reservationsRepository.save(Reservation.builder()
+                .bookingId(bookingId)
+                .status(ReservationStatus.RESERVED)
+                .email("f@l.com")
+                .firstName("f")
+                .lastName("l")
+                .checkInDate(availableStartDate.plusDays(1))
+                .checkInDate(availableStartDate.plusDays(3))
+                .build());
+
+        ModificationResponse modificationResponse = campsiteService.modify(ModificationRequest.builder()
+                .bookingId(bookingId)
+                .firstName("f")
+                .lastName("l")
+                .email("f@l.com")
+                .checkInDate(availableStartDate.plusDays(2))
+                .checkOutDate(availableStartDate.plusDays(4))
+                .build());
+
+        String newBookingId = modificationResponse.getReservationResponse().getBookingId();
+
+        Optional<Reservation> reservation = reservationsRepository.findByBookingId(newBookingId);
+
+        assertEquals(availableStartDate.plusDays(2), reservation.get().getCheckInDate());
+        assertEquals(availableStartDate.plusDays(4), reservation.get().getCheckOutDate());
+
+
+    }
+
 }
